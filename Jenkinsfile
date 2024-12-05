@@ -1,45 +1,67 @@
 pipeline {
     agent any
+
+    environment {
+        VENV_PATH = 'venv'
+        PYTHON_CMD = 'python3'
+        PIP_CMD = './venv/bin/pip'
+        FLAKE8_CMD = './venv/bin/flake8'
+        PYTEST_CMD = './venv/bin/pytest'
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
         stage('Setup Virtual Environment') {
             steps {
-                sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
-                '''
+                script {
+                    sh """
+                    ${PYTHON_CMD} -m venv ${VENV_PATH}
+                    . ${VENV_PATH}/bin/activate
+                    ${PIP_CMD} install --upgrade pip
+                    """
+                }
             }
         }
+
         stage('Install Dependencies') {
             steps {
-                sh '''
-                . venv/bin/activate
-                pip install -r requirements.txt
-                '''
+                script {
+                    sh """
+                    . ${VENV_PATH}/bin/activate
+                    ${PIP_CMD} install -r requirements.txt
+                    """
+                }
             }
         }
+
         stage('Linting') {
             steps {
-                sh '''
-                . venv/bin/activate
-                flake8 main.py test_main.py
-                '''
+                script {
+                    sh """
+                    . ${VENV_PATH}/bin/activate
+                    ${FLAKE8_CMD} main.py test_main.py
+                    """
+                }
             }
         }
+
         stage('Testing') {
             steps {
-                sh '''
-                . venv/bin/activate
-                pytest --junitxml=report.xml
-                '''
+                script {
+                    sh """
+                    . ${VENV_PATH}/bin/activate
+                    ${PYTEST_CMD} --junitxml=report.xml
+                    """
+                }
             }
         }
     }
+
     post {
         always {
             junit 'report.xml'
