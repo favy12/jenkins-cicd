@@ -10,7 +10,7 @@ pipeline {
             steps {
                 sh '''
                 python3 -m venv venv
-                source venv/bin/activate
+                . venv/bin/activate
                 pip install --upgrade pip
                 '''
             }
@@ -18,7 +18,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                source venv/bin/activate
+                . venv/bin/activate
                 pip install -r requirements.txt
                 '''
             }
@@ -26,7 +26,7 @@ pipeline {
         stage('Linting') {
             steps {
                 sh '''
-                source venv/bin/activate
+                . venv/bin/activate
                 flake8 main.py test_main.py
                 '''
             }
@@ -34,7 +34,7 @@ pipeline {
         stage('Testing') {
             steps {
                 sh '''
-                source venv/bin/activate
+                . venv/bin/activate
                 pytest --junitxml=report.xml
                 '''
             }
