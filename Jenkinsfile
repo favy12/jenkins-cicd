@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent any
 
     environment {
@@ -7,6 +7,7 @@ pipeline {
         PIP_CMD = './venv/bin/pip'
         FLAKE8_CMD = './venv/bin/flake8'
         PYTEST_CMD = './venv/bin/pytest'
+        APP_PORT = '5000'
     }
 
     stages {
@@ -56,6 +57,17 @@ pipeline {
                     sh """
                     . ${VENV_PATH}/bin/activate
                     ${PYTEST_CMD} --junitxml=report.xml
+                    """
+                }
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                script {
+                    sh """
+                    . ${VENV_PATH}/bin/activate
+                    nohup ${PYTHON_CMD} main.py --host=0.0.0.0 --port=${APP_PORT} &
                     """
                 }
             }
